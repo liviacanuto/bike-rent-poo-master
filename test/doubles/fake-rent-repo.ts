@@ -12,6 +12,11 @@ export class FakeRentRepo implements RentRepo {
         return newId
     }
 
+    async find(id: String): Promise<Rent> {
+        return this.rents.find(rent => 
+            rent.id === id)
+    }
+
     async findOpen(bikeId: string, userEmail: string): Promise<Rent> {
         return this.rents.find(rent =>
             rent.bike.id === bikeId &&
@@ -20,16 +25,15 @@ export class FakeRentRepo implements RentRepo {
         )
     }
 
-    async update(id: string, rent: Rent): Promise<void> {
-        const rentIndex = this.rents.findIndex(rent => rent.id === id)
-        if (rentIndex !== -1) this.rents[rentIndex] = rent
-    }
-
-    async findOpenRentsFor(userEmail: string): Promise<Rent> {
-        return this.rents.find(rent =>
+    async findOpenFor(userEmail: string): Promise<Rent[]> {
+        return this.rents.filter(rent =>
             rent.user.email === userEmail &&
-            !rent.end
-        )
+            !rent.end)
     }
 
+    async updateEnd(id: string, end: Date): Promise<void> {
+        const rentIndex = this.rents.findIndex(rent => rent.id === id)
+        if (rentIndex !== -1) this.rents[rentIndex].end = end
+    }
+    
 }

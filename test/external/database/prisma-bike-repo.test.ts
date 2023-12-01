@@ -1,9 +1,8 @@
-import { PrismaUserRepo } from "../../../src/external/database/prisma-user-repo";
-import prisma from "../../../src/external/database/db";
-import { Bike } from "../../../src/bike";
-import { PrismaBikeRepo } from "../../../src/external/database/prisma-bike-repo";
+import { Bike } from "../../../src/bike"
+import prisma from "../../../src/external/database/db"
+import { PrismaBikeRepo } from "../../../src/external/database/prisma-bike-repo"
 
-describe("PrimsBikeRepo", () => {
+describe('PrismaBikeRepo', () => {
     beforeEach(async () => {
         await prisma.bike.deleteMany({})
     })
@@ -12,96 +11,108 @@ describe("PrimsBikeRepo", () => {
         await prisma.bike.deleteMany({})
     })
 
-    it("adds a bike in the database", async () => {
+    it('adds a bike in the database', async () => {
         const bikeToBePersisted = new Bike(
-            "bikeTeste",
-            "testeType",
-            5,
-            10,
-            8,
-            "description nice",
-            7,
-            []
-        );
-        const repo = new PrismaBikeRepo();
-        const bikeId = await repo.add(bikeToBePersisted);
-        expect(bikeId).toBeDefined();
-        const persistedBike = await repo.find(bikeToBePersisted.id);
-        expect(persistedBike.name).toEqual(bikeToBePersisted.name);
-    });
+          'mountain bike',
+          'mountain',
+          20,
+          100,
+          10,
+          'mountain bike',
+          5,
+          ['http://image1.com', 'http://image2.com'],
+        )
+        const repo = new PrismaBikeRepo()
+        const bikeId = await repo.add(bikeToBePersisted)
+        expect(bikeId).toBeDefined()
+        const persistedBike = await repo.find(bikeId)
+        expect(persistedBike.name).toEqual(
+          bikeToBePersisted.name
+        )
+        expect(persistedBike.imageUrls.length).toEqual(2)
+    })
 
-    it("removes a bike from the database", async () => {
+    it('removes a bike from the database', async () => {
         const bikeToBePersisted = new Bike(
-            "bikeTeste",
-            "testeType",
-            5,
-            10,
-            8,
-            "description nice",
-            7,
-            []
-        );
-        const repo = new PrismaBikeRepo();
-        const bikeId = await repo.add(bikeToBePersisted);
-        await repo.remove(bikeId);
-        const removedBike = await repo.find(bikeId);
-        expect(removedBike).toBeNull();
-    });
+          'mountain bike',
+          'mountain',
+          20,
+          100,
+          10,
+          'mountain bike',
+          5,
+          ['http://image1.com', 'http://image2.com'],
+        )
+        const repo = new PrismaBikeRepo()
+        const bikeId = await repo.add(bikeToBePersisted)
+        console.log(bikeId)
+        await repo.remove(bikeId)
+        const removedBike = await repo.find(bikeId)
+        expect(removedBike).toBeNull()
+    })
 
-    it("lists bike in the database", async () => {
+    it('lists bikes in the database', async () => {
         const bike1 = new Bike(
-            "bike1",
-            "vermelho",
-            8,
-            5,
-            9,
-            "blabla",
-            7,
-            []
-        );
+          'mountain bike',
+          'mountain',
+          20,
+          100,
+          10,
+          'mountain bike',
+          5,
+          ['http://image1.com', 'http://image2.com'],
+        )
         const bike2 = new Bike(
-            "bike2",
-            "verde",
-            4,
-            6,
-            8,
-            "pipipopo",
-            8,
-            []
-        );
-        const repo = new PrismaBikeRepo();
-        await repo.add(bike1);
-        await repo.add(bike2);
-        const bikeList = await repo.list();
-        expect(bikeList.length).toEqual(2);
-    });
+          'mountain bike',
+          'mountain',
+          20,
+          100,
+          10,
+          'mountain bike',
+          5,
+          ['http://image1.com', 'http://image2.com'],
+        )
+        const repo = new PrismaBikeRepo()
+        await repo.add(bike1)
+        await repo.add(bike2)
+        const bikeList = await repo.list()
+        expect(bikeList.length).toEqual(2)
+    })
 
-    it("update bike in the database", async () => {
-        const bike1 = new Bike(
-            "bike1",
-            "vermelho",
-            8,
-            5,
-            9,
-            "blabla",
-            7,
-            []
-        );
-        const bike2 = new Bike(
-            "bike2",
-            "verde",
-            4,
-            6,
-            8,
-            "pipipopo",
-            8,
-            []
-        );
-        const repo = new PrismaBikeRepo();
-        const bikeId = await repo.add(bike1);
-        await repo.update(bikeId, bike2);
-        expect(bikeId).toBeDefined();
-        const updatedBike = await repo.find(bikeId);
-        expect(updatedBike.name).toEqual(bike2.name);
-    });
-});
+    it('should update bike availability in the database', async () => {
+        const bikeToBePersisted = new Bike(
+          'mountain bike',
+          'mountain',
+          20,
+          100,
+          10,
+          'mountain bike',
+          5,
+          ['http://image1.com', 'http://image2.com'],
+        )
+        const repo = new PrismaBikeRepo()
+        const bikeId = await repo.add(bikeToBePersisted)
+        await repo.updateAvailability(bikeId, false)
+        const updatedBike = await repo.find(bikeId)
+        expect(updatedBike.available).toBeFalsy()
+    })
+
+    it('should update bike location in the database', async () => {
+        const bikeToBePersisted = new Bike(
+          'mountain bike',
+          'mountain',
+          20,
+          100,
+          10,
+          'mountain bike',
+          5,
+          ['http://image1.com', 'http://image2.com'],
+        )
+        const repo = new PrismaBikeRepo()
+        const bikeId = await repo.add(bikeToBePersisted)
+        await repo.updateLocation(bikeId, 10.5, 20.5)
+        const updatedBike = await repo.find(bikeId)
+        expect(updatedBike.location.latitude).toEqual(10.5)
+        expect(updatedBike.location.longitude).toEqual(20.5)
+    })
+})
